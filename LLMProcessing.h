@@ -1,15 +1,22 @@
-//
-// Created by 16474 on 2023-11-06.
-//
-
-#ifndef GROUP29_LLMPROCESSING_H
-#define GROUP29_LLMPROCESSING_H
+#ifndef LLMPROCESSING_H
+#define LLMPROCESSING_H
 
 #include <string>
+#include <list>
 
 class LLMProcessing {
+private:
+    std::list<std::string> conversationContext;
+    std::string emotionState;
+
 public:
+    LLMProcessing() = default;
+    ~LLMProcessing() = default;
+
     std::string generateResponse(const std::string& textInput);
+    std::string determineEmotion(const std::string& response);
 };
 
-#endif //GROUP29_LLMPROCESSING_H
+std::string exec(const char* cmd); //executing system commands
+
+#endif // LLMPROCESSING_H
