@@ -1,14 +1,16 @@
-//
-// Created by Paramvir Sran on 6/11/23.
-//
+#ifndef POLLY_H
+#define POLLY_H
 
-#ifndef GROUP29_POLLY_H
-#define GROUP29_POLLY_H
-
+#include "LLMProcessing.h" // Include the header of LLMProcessing to use its functionality
+#include "TextToSpeech.h"
 
 class Polly {
-
+private:
+    LLMProcessing llmProcessor; // Instance of LLMProcessing to use its methods
+    TextToSpeech tts;
+public:
+    Polly(); //declare constructor
+    void run();
 };
 
-
-#endif //GROUP29_POLLY_H
+#endif // POLLY_H
