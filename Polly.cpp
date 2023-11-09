@@ -16,17 +16,8 @@ void Polly::run() {
 
 
     // Narrate the response
-    bool success = tts.speak(response);
-    if (!success) {
-        std::cerr << "Failed to narrate the response." << std::endl;
-    }
-    // testing
-    bool testSuccess = tts.speak("Hello, world!");
-    if (!testSuccess) {
-        std::cerr << "Text-to-speech test failed." << std::endl;
-        return; // Exit if the test failed
-    }
-
+    tts.speak(response);
+    
 }
 
 int main() {
