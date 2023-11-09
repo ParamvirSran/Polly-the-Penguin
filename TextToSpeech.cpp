@@ -1,28 +1,21 @@
-#include "TextToSpeech.h"
-#include <cstdlib>
 #include <iostream>
+#include <string>
+#include <stdexcept>
 
-TextToSpeech::TextToSpeech() {
-    // Constructor could be empty if all logic is handled in the speak function.
-}
+class TextToSpeech {
+public:
+    void speak(const std::string& text) {
+        std::string command = "espeak \"" + text + "\"";
+        int result = system(command.c_str());
+        if (result != 0) {
+            throw std::runtime_error("Failed to invoke espeak.");
+        }
+    }
+};
 
-TextToSpeech::~TextToSpeech() {
-    // Destructor could be empty as well.
-}
+int main() {
+    TextToSpeech tts;
+    tts.speak("this is a test");
 
-bool TextToSpeech::speak(const std::string& text) {
-    //must change to path of your Python3.10 exe
-    std::string command = "C:/Users/16474/AppData/Local/Programs/Python/Python310/python.exe speak.py \"" + text + "\"";
-    int result = std::system(command.c_str());
-    return result == 0;
-}
-
-bool TextToSpeech::setVoice(const std::string& voice) {
-    // This functionality would need to be set in the Python script or omitted.
-    return true;
-}
-
-bool TextToSpeech::setSpeakingRate(float rate) {
-    // This functionality would need to be handled in the Python script or omitted.
-    return true;
+    return 0;
 }
