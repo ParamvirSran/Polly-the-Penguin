@@ -1,5 +1,5 @@
 // Description: This program records audio from the default input device and sends it to the Google Cloud Speech-to-Text API for transcription.
-//              The transcription is then output to the console and written to a file named 'transcription.txt'.
+// The transcription is then output to the console and written to a file named 'transcription.txt'.
 
 #include <iostream>
 #include <fstream>
@@ -100,10 +100,26 @@ void WriteToFile(const std::string& filename, const std::string& text) {
 }
 
 
-// record audio from default input device for a specified duration
+// Function to check and list available audio devices
+void ListAudioDevices() {
+    int numDevices = Pa_GetDeviceCount();
+    if (numDevices < 1) {
+        std::cerr << "No audio devices found!" << std::endl;
+    } else {
+        std::cout << "Available audio devices:" << std::endl;
+        for (int i = 0; i < numDevices; i++) {
+            const PaDeviceInfo *deviceInfo = Pa_GetDeviceInfo(i);
+            std::cout << "Device " << i << ": " << deviceInfo->name << std::endl;
+        }
+    }
+}
+
+
+// Function to record audio from default input device for a specified duration
 std::vector<float> RecordAudio(int recordTimeSecs) {
     // Initialize PortAudio
     PaError err = Pa_Initialize();
+
     if (err != paNoError) throw std::runtime_error("PortAudio initialization failed");
 
     PaStreamParameters inputParameters;
@@ -145,22 +161,48 @@ std::vector<float> RecordAudio(int recordTimeSecs) {
 }
 
 int main() {
+    PaError err = Pa_Initialize();
+
+    if (err != paNoError) {
+        std::cerr << "PortAudio initialization failed: " << Pa_GetErrorText(err) << std::endl;
+        return 1;
+    }
+
     try {
-        // Set up the input parameters for recording
-        PaStreamParameters inputParameters;
-        inputParameters.device = Pa_GetDefaultInputDevice();
-        if (inputParameters.device == paNoDevice) {
-            std::cerr << "Error: No default input device." << std::endl;
-            Pa_Terminate();
-            return 1;
-        }
 
-        inputParameters.channelCount = kNumChannels;
-        inputParameters.sampleFormat = paFloat32; // Assuming the PortAudio build supports float32
-        inputParameters.suggestedLatency = Pa_GetDeviceInfo(inputParameters.device)->defaultLowInputLatency;
-        inputParameters.hostApiSpecificStreamInfo = nullptr;
+    // List all available audio devices
+    int numDevices = Pa_GetDeviceCount();
+    if (numDevices < 1) {
+        std::cerr << "No audio devices found!" << std::endl;
+        Pa_Terminate();
+        return 1;
+    }
 
-        // Open an audio I/O stream.
+    std::cout << "Available audio devices:" << std::endl;
+    for (int i = 0; i < numDevices; i++) {
+        const PaDeviceInfo* deviceInfo = Pa_GetDeviceInfo(i);
+        std::cout << "Device " << i << ": " << deviceInfo->name << std::endl;
+    }
+
+    // Attempt to get the default input device
+    PaDeviceIndex defaultDeviceIndex = Pa_GetDefaultInputDevice();
+    if (defaultDeviceIndex == paNoDevice) {
+        std::cerr << "Error: No default input device." << std::endl;
+        Pa_Terminate();
+        return 1;
+    }
+
+    // Set up the input parameters for recording using the default device
+    PaStreamParameters inputParameters;
+    memset(&inputParameters, 0, sizeof(inputParameters));
+    inputParameters.device = defaultDeviceIndex;
+    inputParameters.channelCount = kNumChannels;
+    inputParameters.sampleFormat = paFloat32; // Assuming the PortAudio build supports float32
+    inputParameters.suggestedLatency = Pa_GetDeviceInfo(inputParameters.device)->defaultLowInputLatency;
+    inputParameters.hostApiSpecificStreamInfo = nullptr;
+
+
+         // Open an audio I/O stream.
         PaStream *stream;
         err = Pa_OpenStream(&stream, &inputParameters, nullptr, kSampleRate, kFramesPerBuffer, paClipOff, nullptr, nullptr);
         if (err != paNoError) {
@@ -205,9 +247,6 @@ int main() {
             return 1;
         }
 
-        // Terminate PortAudio
-        Pa_Terminate();
-
         // Perform speech recognition on the recorded audio
         std::string response = PerformSpeechRecognition(audioBuffer);
 
@@ -240,11 +279,14 @@ int main() {
             return 1;
         }
 
-    } catch (const std::exception& e) {
+   } catch (const std::exception& e) {
         // Catch any other std::exception based errors
         std::cerr << "An error occurred: " << e.what() << std::endl;
+        Pa_Terminate(); // Ensure PortAudio is terminated in case of an exception
         return 1;
     }
+    // Terminate PortAudio
+    Pa_Terminate();
 
     return 0;
 }
