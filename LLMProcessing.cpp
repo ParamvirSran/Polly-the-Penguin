@@ -11,6 +11,8 @@
 #include <iomanip>
 
 std::string exec(const char* cmd);
+std::string cleanResponse(const std::string& resp);
+
 
 std::string LLMProcessing::generateResponse(const std::string& textInput) {
     //JSON payload needs to be escaped otherwise error 500
@@ -18,8 +20,20 @@ std::string LLMProcessing::generateResponse(const std::string& textInput) {
     // Use a system call to invoke the Python service with curl
     //LAST WORKING!! std::string command = "curl -X POST -H \"Content-Type: application/json\" -d \"{\\\"text\\\": \\\"hey man im having trouble quitting smoking, could you give me some pointers?\\\"}\" http://localhost:5000/generate > temp.txt";
 
-    //this works as a proof of concept
-    std::string command = "curl -X POST -H \"Content-Type: application/json\" -d \"{\\\"text\\\": \\\"" + textInput + "\\\"}\" http://localhost:5000/generate > temp.txt";
+    //escaping for JSON
+    std::string escapedTextInput;
+    for (char c : textInput) {
+        if (c == '\"') {
+            escapedTextInput += "\\\"";
+        } else {
+            escapedTextInput += c;
+        }
+    }
+    std::string command = "curl -X POST -H \"Content-Type: application/json\" -d \"{\\\"text\\\": \\\"" + escapedTextInput + "\\\"}\" http://localhost:5000/generate > temp.txt";
+
+    /////////////////this works as a proof of concept
+    //std::string command = "curl -X POST -H \"Content-Type: application/json\" -d \"{\\\"text\\\": \\\"" + textInput + "\\\"}\" http://localhost:5000/generate > temp.txt";
+    //////////////////////////
 
     system(command.c_str());
     //std::string output = exec(command.c_str());
@@ -35,6 +49,8 @@ std::string LLMProcessing::generateResponse(const std::string& textInput) {
     std::string response((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
     ifs.close();
     //std::remove("temp.txt"); //garbage coll
+
+    response = cleanResponse(response);
     return response;
 }
 
@@ -49,7 +65,7 @@ std::string LLMProcessing::determineEmotion(const std::string& response) {
     //}
     //return emotionState;
 
-    return "placeholder";
+    return "SAD";
 }
 
 //int main() {
@@ -76,3 +92,42 @@ std::string exec(const char* cmd) {
     }
     return result;
 }
+
+std::string cleanResponse(const std::string& resp) {
+    std::string modifiedResp = resp;  // Make a copy of the input string
+
+    // Find the position of "result":
+    size_t resultPos = modifiedResp.find("\"result\":");
+
+    // If "result" is found, remove it and the surrounding characters
+    if (resultPos != std::string::npos) {
+        modifiedResp.erase(0, resultPos + 10); // 10 is the length of "\"result\":"
+    }
+
+    std::string cleanResp = "";
+
+    for (size_t i = 0; i < modifiedResp.length(); ++i) {
+        char currentChar = modifiedResp[i];
+
+        if (currentChar == '{' || currentChar == '}' || currentChar == '"') {
+            // Don't append '{' to cleanResp
+            continue;
+        }
+
+        if (currentChar == '\\') {
+            // Check if the next character is 'n'
+            if (i + 1 < modifiedResp.length() && modifiedResp[i + 1] == 'n') {
+                // Skip the '\n' character
+                ++i;
+                continue;
+            }
+        }
+
+        // Append the character to cleanResp
+        cleanResp += currentChar;
+    }
+
+    return cleanResp;
+}
+
+
