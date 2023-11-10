@@ -20,7 +20,7 @@ void Display::pollyFeels(const std::string& emotion) {
     }
 
     // Close the previous image viewer (CentOS-specific)
-    system("pkill -f xdg-open");
+    system("pkill -f xdg-open"); //fix this or find alternative
 
     // Open the image in a new image viewer process
     std::string command = "xdg-open " + imageFile + " &";  // Linux

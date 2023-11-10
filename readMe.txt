@@ -54,7 +54,7 @@ _(__  )/ /_ / /_/ /_  /   / /_
 /____/ \__/ \__,_/ /_/    \__/  
                                 
 1. python3 llm_service.py (opens server..MUST KEEP IT RUNNING)
-2. (in new terminal) - g++ -o Polly polly.cpp Display.cpp LLMProcessing.cpp TextToSpeech.cpp -std=c++11 -lcurl
+2. (in new terminal) - g++ -o Polly polly.cpp Display.cpp LLMProcessing.cpp TextToSpeech.cpp VoiceCustomization.cpp -std=c++11 -lcurl
 
 
 

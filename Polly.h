@@ -4,14 +4,17 @@
 #include "LLMProcessing.h"
 #include "TextToSpeech.h"
 #include "Display.h"
+#include "VoiceCustomization.h"
 
 class Polly {
 private:
     LLMProcessing llmProcessor;
     TextToSpeech tts;
     Display display;
+    VoiceCustomization voice;
+
 public:
-    Polly(); //declare constructor
+    Polly(); // Constructor declaration
     void run();
 };
 
