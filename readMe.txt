@@ -35,9 +35,10 @@ ______________  /____  _________
 __  ___/  _ \  __/  / / /__  __ \
 _(__  )/  __/ /_ / /_/ /__  /_/ /
 /____/ \___/\__/ \__,_/ _  .___/ 
-                        /_/      
-
+                        /_/
 First make sure you are on 64bit Fedora or Debian/Ubuntu based Linux distro
+    (works best on Ubuntu or CentOS)
+
 Then install the following:
 
 * python3.10
@@ -48,16 +49,16 @@ Then install the following:
 * curl
 * espeak
 
-
        _____              _____ 
 _________  /______ _________  /_
 __  ___/  __/  __ `/_  ___/  __/
 _(__  )/ /_ / /_/ /_  /   / /_  
 /____/ \__/ \__,_/ /_/    \__/  
-                                
-1. python3 llm_service.py (opens server..MUST KEEP IT RUNNING)
-2. (in new terminal) - g++ -o Polly polly.cpp Display.cpp LLMProcessing.cpp TextToSpeech.cpp VoiceCustomization.cpp -std=c++11 -lcurl
+Open two terminals, turn your volume on, then enter these commands:
 
+1. python3 llm_service.py (opens server..MUST KEEP IT RUNNING)
+2. (in new terminal) g++ -o Polly polly.cpp Display.cpp LLMProcessing.cpp TextToSpeech.cpp VoiceCustomization.cpp -std=c++11 -lcurl
+3. (in the terminal you ran the g++ command) ./Polly
 
 
 _____            __________                
@@ -66,13 +67,18 @@ _  __/  _ \_  ___/  __/_  /__  __ \_  __ `/
 / /_ /  __/(__  )/ /_ _  / _  / / /  /_/ / 
 \__/ \___//____/ \__/ /_/  /_/ /_/_\__, /  
                                   /____/   
-currently missing SpeechToText, so you gotta type your prompts 
-in the terminal running Polly (not the py server)
+When you see "Polly is listening", you can directly type in your prompts.
+For the MVP, the LLM is running using CPU inference, therefore it
+takes a little bit of time to generate responses. Please be patient,
+and wait for Polly to speak its response and emotion.
+
+Once Polly is done talking, Polly is listening will be prompted again, and you
+will be able to continue talking.
+
+To change voice, type "change voice"
+
+To exit, type "shut down"
 
 
 
 
-current issues:
-
-due to system() in LLMProcessing to run the curl command to the llm_service, 
-currently Polly is only compatible on Windows (untested for Unix-based systems)
