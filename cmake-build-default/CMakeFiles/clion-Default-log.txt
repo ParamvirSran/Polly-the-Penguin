@@ -1,0 +1,21 @@
+/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -S /Users/parm/Desktop/Programming/C++/group29 -B /Users/parm/Desktop/Programming/C++/group29
+CMake Warning at CMakeLists.txt:22 (find_package):
+  By not providing "FindPortAudio.cmake" in CMAKE_MODULE_PATH this project
+  has asked CMake to find a package configuration file provided by
+  "PortAudio", but CMake did not find one.
+
+  Could not find a package configuration file provided by "PortAudio" with
+  any of the following names:
+
+    PortAudioConfig.cmake
+    portaudio-config.cmake
+
+  Add the installation prefix of "PortAudio" to CMAKE_PREFIX_PATH or set
+  "PortAudio_DIR" to a directory containing one of the above files.  If
+  "PortAudio" provides a separate development package or SDK, be sure it has
+  been installed.
+
+
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/parm/Desktop/Programming/C++/group29
