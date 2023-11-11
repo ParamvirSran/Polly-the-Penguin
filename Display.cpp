@@ -8,11 +8,13 @@ void Display::pollyFeels(const std::string& emotion) {
     // Determine which image to display based on the emotion
     std::string imageFile;
 
-    if (emotion == "SAD") {
+    if (emotion == "sad") {
         imageFile = "graphics/sad.jpg";
-    } else if (emotion == "ANGRY") {
+    } else if (emotion == "angry") {
         imageFile = "graphics/angry.jpg";
-    } else if (emotion == "LIT") {
+    } else if (emotion == "love") {
+        imageFile = "graphics/happy.jpg";
+    } else if (emotion == "surprise") {
         imageFile = "graphics/happy.jpg";
     } else {
         // Default to base image for unknown emotions
