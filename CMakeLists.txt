@@ -18,8 +18,18 @@ find_package(CURL REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(OpenSSL REQUIRED)
 
-# Append the CMake prefix path with the path to PortAudio's CMake configuration
-list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew/Cellar/portaudio/19.7.0/lib/cmake/portaudio")
+# Try to find PortAudio using find_package
+find_package(PortAudio)
+
+# If not found, use hardcoded paths
+if (NOT PortAudio_FOUND)
+    # Append the CMake prefix path with the path to PortAudio's CMake configuration
+    list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew/Cellar/portaudio/19.7.0/lib/cmake/portaudio")
+
+    # Set up the include directory and library for PortAudio
+    set(PORTAUDIO_INCLUDE_DIR /opt/homebrew/Cellar/portaudio/19.7.0/include)
+    set(PORTAUDIO_LIBRARY /opt/homebrew/Cellar/portaudio/19.7.0/lib/libportaudio.a)
+endif ()
 
 # Find the necessary macOS frameworks
 find_library(COREAUDIO_LIBRARY CoreAudio)
@@ -27,10 +37,6 @@ find_library(AUDIOTOOLBOX_LIBRARY AudioToolbox)
 find_library(AUDIOUNIT_LIBRARY AudioUnit)
 find_library(CORESERVICES_LIBRARY CoreServices)
 find_library(COREFOUNDATION_LIBRARY CoreFoundation)
-
-# Set up the include directory and library for PortAudio
-set(PORTAUDIO_INCLUDE_DIR /opt/homebrew/Cellar/portaudio/19.7.0/include)
-set(PORTAUDIO_LIBRARY /opt/homebrew/Cellar/portaudio/19.7.0/lib/libportaudio.a)
 
 # Include directories for all the found packages
 include_directories(
@@ -40,9 +46,12 @@ include_directories(
 )
 
 # Add an executable with the above sources
-add_executable(${PROJECT_NAME} STT.cpp)
+add_executable(${PROJECT_NAME} STT.cpp
+        SpeechRecognizer.cpp
+        SpeechRecognizer.h
+        STT.h)
 
-# Link the target with the manually specified PortAudio library and the other libraries
+# Link the target with the manually specified PortAudio library (if not found) and the other libraries
 target_link_libraries(${PROJECT_NAME}
         ${PORTAUDIO_LIBRARY}
         ${CURL_LIBRARIES}

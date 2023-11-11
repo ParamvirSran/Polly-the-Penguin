@@ -1,131 +1,16 @@
-// Description: This program records audio from the default input device and sends it to the Google Cloud Speech-to-Text API for transcription.
-// The transcription is then output to the console and written to a file named 'transcription.txt'.
+// This class is used to perform speech recognition using the Google Cloud Speech-to-Text API.
+// it will take in audio input from a microphone and output the transcribed text to a file.
 
+#include "STT.h"
+#include "SpeechRecognizer.h"
 #include <iostream>
-#include <fstream>
 #include <string>
 #include <vector>
 #include "portaudio.h"
 #include <curl/curl.h>
-#include <nlohmann/json.hpp>
-#include <openssl/bio.h>
-#include <openssl/evp.h>
-#include <openssl/buffer.h>
-#include <chrono>
-
-// Constants
-const int kSampleRate = 44100;
-const int kFramesPerBuffer = 256;
-const int kNumChannels = 1;
-const int kRecordTimeSecs = 10;
 
 // Global constant for API key
-const std::string kApiKey = "AIzaSyC7nOfOCovoNDIT8bzIdFh_X9n0lSWdnt4";
-
-// function to encode audio data to Base64
-std::string Base64Encode(const std::vector<float> &buffer) {
-    BIO *bio, *b64;
-    BUF_MEM *bufferPtr;
-
-    b64 = BIO_new(BIO_f_base64());
-    bio = BIO_new(BIO_s_mem());
-    bio = BIO_push(b64, bio);
-
-    BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL); // Ignore newlines - write everything in one line
-    BIO_write(bio, buffer.data(), buffer.size() * sizeof(float));
-    BIO_flush(bio);
-    BIO_get_mem_ptr(bio, &bufferPtr);
-    BIO_set_close(bio, BIO_NOCLOSE);
-
-    // Copy memory buffer
-    std::string encodedAudio(bufferPtr->data, bufferPtr->length);
-
-    BIO_free_all(bio);
-    BUF_MEM_free(bufferPtr);
-
-    return encodedAudio;
-}
-
-
-// Function to read an entire file into a buffer
-std::vector<char> ReadFile(const std::string &filename) {
-    std::ifstream file(filename, std::ios::binary | std::ios::ate);
-    if (!file) {
-        throw std::runtime_error("Unable to open file: " + filename);
-    }
-
-    std::streamsize size = file.tellg();
-    file.seekg(0, std::ios::beg);
-
-    std::vector<char> buffer(size);
-    if (!file.read(buffer.data(), size)) {
-        throw std::runtime_error("Failed to read file: " + filename);
-    }
-
-    return buffer;
-}
-
-// Callback for receiving the data from libcurl
-size_t CurlWriteCallback(void *contents, size_t size, size_t nmemb, std::string *s) {
-    size_t newLength = size * nmemb;
-    try {
-        s->append((char *) contents, newLength);
-        return newLength;
-    } catch (std::bad_alloc &e) {
-        // Handle memory problem
-        return 0;
-    }
-}
-
-// Function to perform the API request and return the transcription
-std::string PerformSpeechRecognition(const std::vector<float> &audioBuffer) {
-    CURL *curl;
-    CURLcode res;
-    std::string readBuffer;
-    std::string encodedAudio = Base64Encode(audioBuffer);
-    std::string jsonPayload =
-            R"({"config":{"encoding":"LINEAR16","sampleRateHertz":44100,"languageCode":"en-US"},"audio":{"content":")" +
-            encodedAudio + R"("}})";
-
-    std::string requestUrl = "https://speech.googleapis.com/v1p1beta1/speech:recognize?key=" + kApiKey;
-
-    std::cout << "Sending request to: " << requestUrl << std::endl;
-    std::cout << "Payload: " << jsonPayload << std::endl;  // Be careful with logging sensitive data
-
-    curl_global_init(CURL_GLOBAL_ALL);
-    curl = curl_easy_init();
-    if (curl) {
-        struct curl_slist *headers = nullptr;
-        headers = curl_slist_append(headers, "Content-Type: application/json");
-        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-
-        curl_easy_setopt(curl, CURLOPT_URL, requestUrl.c_str());
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonPayload.c_str());
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, -1L);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWriteCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
-
-        res = curl_easy_perform(curl);
-        if (res != CURLE_OK) {
-            std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
-        } else {
-            std::cout << "Response received: " << readBuffer << std::endl;
-        }
-
-        curl_easy_cleanup(curl);
-        curl_slist_free_all(headers);
-    }
-    curl_global_cleanup();
-
-    return readBuffer;
-}
-
-// Function to write text to a file
-void WriteToFile(const std::string &filename, const std::string &text) {
-    std::ofstream outFile(filename);
-    outFile << text;
-    outFile.close();
-}
+const std::string apikey = "AIzaSyC7nOfOCovoNDIT8bzIdFh_X9n0lSWdnt4";
 
 
 // Function to check and list available audio devices
@@ -189,161 +74,48 @@ std::vector<float> RecordAudio(int recordTimeSecs) {
 }
 
 int main() {
+    // Initialize PortAudio and libcurl
     PaError err = Pa_Initialize();
+    curl_global_init(CURL_GLOBAL_ALL);
 
     if (err != paNoError) {
         std::cerr << "PortAudio initialization failed: " << Pa_GetErrorText(err) << std::endl;
+        curl_global_cleanup();
         return 1;
     }
-
 
     try {
-
-
-
-        // Replace this with the path to your test audio file
-        std::string audioFilePath = "test.wav";
-
-        // Read the audio file into a buffer
-        std::vector<char> audioData = ReadFile(audioFilePath);
-
-        // Encode the audio data to Base64
-        std::string encodedAudio = Base64Encode(std::vector<float>(audioData.begin(), audioData.end()));
-
+        SpeechRecognizer recognizer(apikey); // Create a speechRecognizer object
 
         // List all available audio devices
-        int numDevices = Pa_GetDeviceCount();
-        if (numDevices < 1) {
-            std::cerr << "No audio devices found!" << std::endl;
-            Pa_Terminate();
-            return 1;
-        }
+        ListAudioDevices();
 
-        std::cout << "Available audio devices:" << std::endl;
-        for (int i = 0; i < numDevices; i++) {
-            const PaDeviceInfo *deviceInfo = Pa_GetDeviceInfo(i);
-            std::cout << "Device " << i << ": " << deviceInfo->name << std::endl;
-        }
-
-        // Attempt to get the default input device
-        PaDeviceIndex defaultDeviceIndex = Pa_GetDefaultInputDevice();
-        if (defaultDeviceIndex == paNoDevice) {
-            std::cerr << "Error: No default input device." << std::endl;
-            Pa_Terminate();
-            return 1;
-        }
-
-        // Set up the input parameters for recording using the default device
-        PaStreamParameters inputParameters;
-        memset(&inputParameters, 0, sizeof(inputParameters));
-        inputParameters.device = defaultDeviceIndex;
-        inputParameters.channelCount = kNumChannels;
-        inputParameters.sampleFormat = paFloat32; // Assuming the PortAudio build supports float32
-        inputParameters.suggestedLatency = Pa_GetDeviceInfo(inputParameters.device)->defaultLowInputLatency;
-        inputParameters.hostApiSpecificStreamInfo = nullptr;
-
-
-        // Open an audio I/O stream.
-        PaStream *stream;
-        err = Pa_OpenStream(&stream, &inputParameters, nullptr, kSampleRate, kFramesPerBuffer, paClipOff, nullptr,
-                            nullptr);
-        if (err != paNoError) {
-            std::cerr << "PortAudio error: " << Pa_GetErrorText(err) << std::endl;
-            Pa_Terminate();
-            return 1;
-        }
-
-        // Start the audio stream
-        err = Pa_StartStream(stream);
-        if (err != paNoError) {
-            std::cerr << "PortAudio error: " << Pa_GetErrorText(err) << std::endl;
-            Pa_CloseStream(stream);
-            Pa_Terminate();
-            return 1;
-        }
+        // Wait for user input
+        std::cout << "Press ENTER to start recording..." << std::endl;
+        std::cin.get();
 
         // Record the audio into a buffer
-        std::vector<float> audioBuffer(kSampleRate * kRecordTimeSecs); // Create a buffer for the audio data
-        err = Pa_ReadStream(stream, audioBuffer.data(), audioBuffer.size());
-        if (err) {
-            std::cerr << "PortAudio error: " << Pa_GetErrorText(err) << std::endl;
-            Pa_StopStream(stream);
-            Pa_CloseStream(stream);
-            Pa_Terminate();
-            return 1;
-        }
+        std::vector<float> audioBuffer = RecordAudio(kRecordTimeSecs);
 
-        // Stop and close the stream
-        err = Pa_StopStream(stream);
-        if (err != paNoError) {
-            std::cerr << "PortAudio error: " << Pa_GetErrorText(err) << std::endl;
-            Pa_CloseStream(stream);
-            Pa_Terminate();
-            return 1;
-        }
-
-        err = Pa_CloseStream(stream);
-        if (err != paNoError) {
-            std::cerr << "PortAudio error: " << Pa_GetErrorText(err) << std::endl;
-            Pa_Terminate();
-            return 1;
-        }
-
-        std::string response = PerformSpeechRecognition(audioBuffer);
-        std::cout << "API Response: " << response << std::endl;
-
-        // Parse the JSON response
-
-        // output the response
-        std::cout << response << std::endl;
-
-        nlohmann::json jsonResponse = nlohmann::json::parse(response, nullptr, false);
-        if (jsonResponse.is_discarded() || !jsonResponse.contains("results") || jsonResponse["results"].empty()) {
-            std::cerr << "Error parsing JSON response or no results." << std::endl;
-            return 1;
-        }
-
-
-        // Extract the transcribed text
-        std::string transcribedText;
+        // Perform the speech recognition
+        auto response = recognizer.performSpeechRecognition(audioBuffer);
         try {
-            auto &results = jsonResponse["results"];
-            auto &alternatives = results[0]["alternatives"];
-            if (alternatives.is_array() && !alternatives.empty() && alternatives[0].contains("transcript")) {
-                transcribedText = alternatives[0]["transcript"].get<std::string>();
-            } else {
-                std::cerr << "No transcription available in the response." << std::endl;
-                return 1;
-            }
-        } catch (nlohmann::json::exception &e) {
-            std::cerr << "Error extracting transcript: " << e.what() << std::endl;
-            return 1;
-        }
+            std::string transcribedText = recognizer.getTranscribedText(response);
+            std::cout << "Transcribed Text: " << transcribedText << std::endl;
 
-
-        // Output the transcribed text
-        std::cout << transcribedText << std::endl;
-
-        // Write the transcription to a file
-        std::ofstream outFile("transcription.txt");
-        if (outFile) {
-            outFile << transcribedText;
-            outFile.close();
-        } else {
-            std::cerr << "Error opening file for writing." << std::endl;
-            return 1;
+            // ... [Code to write transcribed text to a file or further processing]
+        } catch (const std::exception &e) {
+            std::cerr << "Error processing transcription: " << e.what() << std::endl;
         }
 
     } catch (const std::exception &e) {
-        // Catch any other std::exception based errors
         std::cerr << "An error occurred: " << e.what() << std::endl;
-        Pa_Terminate(); // Ensure PortAudio is terminated in case of an exception
+        Pa_Terminate();
+        curl_global_cleanup();
         return 1;
-    } catch (const std::exception &e) {
-        std::cerr << "Exception: " << e.what() << std::endl;
     }
-    // Terminate PortAudio
-    Pa_Terminate();
 
+    Pa_Terminate(); // Terminate PortAudio
+    curl_global_cleanup(); // Cleanup libcurl
     return 0;
 }
