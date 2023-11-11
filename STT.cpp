@@ -5,23 +5,12 @@
 #include <vector>
 #include "portaudio.h"
 #include <curl/curl.h>
+#include <limits>
+
 
 const std::string apikey = "AIzaSyC7nOfOCovoNDIT8bzIdFh_X9n0lSWdnt4";
 
-void ListAudioDevices() {
-  int numDevices = Pa_GetDeviceCount();
-  if (numDevices < 1) {
-    std::cerr << "No audio devices found!" << std::endl;
-    return;
-  }
-  std::cout << "Available audio devices:" << std::endl;
-  for (int i = 0; i < numDevices; i++) {
-    const PaDeviceInfo *deviceInfo = Pa_GetDeviceInfo(i);
-    std::cout << "Device " << i << ": " << deviceInfo->name << std::endl;
-  }
-}
-
-// WAV file header structure
+// Define the WAV file header structure
 struct WAVHeader {
     char riffHeader[4] = {'R', 'I', 'F', 'F'};
     uint32_t riffChunkSize;
@@ -38,7 +27,7 @@ struct WAVHeader {
     uint32_t dataChunkSize;
 };
 
-
+// Write WAV header to a file
 void WriteWAVHeader(std::ofstream &file, int numChannels, int sampleRate, int bitsPerSample, int dataSize) {
   WAVHeader wavHeader;
   wavHeader.numChannels = numChannels;
@@ -52,27 +41,42 @@ void WriteWAVHeader(std::ofstream &file, int numChannels, int sampleRate, int bi
   file.write(reinterpret_cast<const char *>(&wavHeader), sizeof(WAVHeader));
 }
 
-void SaveAudioToFile(const std::vector<float> &buffer, const std::string &filename) {
+// Helper function to convert float to 16-bit PCM
+int16_t FloatToPCM16(float sample) {
+  return static_cast<int16_t>(std::max(-1.0f, std::min(1.0f, sample)) * std::numeric_limits<int16_t>::max());
+}
+
+void SaveAudioToFile(const std
+::vector<int16_t> &buffer, const std::string &filename) {
   std::ofstream file(filename, std::ios::binary);
 
-  // Assuming your buffer is mono-channel, 44100 Hz, 32-bit float PCM
   int numChannels = 1;
   int sampleRate = 44100;
-  int bitsPerSample = 32;
-  int dataSize = buffer.size() * sizeof(float);
+  int bitsPerSample = 16;
+  int dataSize = buffer.size() * sizeof(int16_t);
 
-  // Write WAV header
+  // Write the WAV file header
   WriteWAVHeader(file, numChannels, sampleRate, bitsPerSample, dataSize);
-
-  // Write audio data
-  file.write(reinterpret_cast<const char *>(buffer.data()), dataSize);
-
   file.close();
 }
 
 
+void ListAudioDevices() {
+  int numDevices = Pa_GetDeviceCount();
+  if (numDevices < 1) {
+    std::cerr << "No audio devices found!" << std::endl;
+    return;
+  }
+  std::cout << "Available audio devices:" << std::endl;
+  for (int i = 0; i < numDevices; i++) {
+    const PaDeviceInfo *deviceInfo = Pa_GetDeviceInfo(i);
+    std::cout << "Device " << i << ": " << deviceInfo->name << std::endl;
+  }
+}
+
+
 // Function to record audio from default input device for a specified duration
-std::vector<float> RecordAudio(int recordTimeSecs) {
+std::vector<int16_t> RecordAudio(int recordTimeSecs) {
   // Initialize PortAudio
   PaError err = Pa_Initialize();
 
@@ -94,28 +98,32 @@ std::vector<float> RecordAudio(int recordTimeSecs) {
   if (err != paNoError) throw std::runtime_error("Failed to start stream");
 
   int totalFramesToRecord = kSampleRate * recordTimeSecs;
-  std::vector<float> audioBuffer(totalFramesToRecord);
+  std::vector<float> floatBuffer(totalFramesToRecord);
+  std::vector<int16_t> pcmBuffer(totalFramesToRecord);
 
   // Record loop
   int framesLeftToRecord = totalFramesToRecord;
   while (framesLeftToRecord > 0) {
     int framesToRead = std::min(kFramesPerBuffer, framesLeftToRecord);
-    err = Pa_ReadStream(stream, &audioBuffer[totalFramesToRecord - framesLeftToRecord], framesToRead);
-    if (err) throw std::runtime_error("Failed to read stream");
-    framesLeftToRecord -= framesToRead;
-  }
+    err = Pa_ReadStream(stream, &floatBuffer[totalFramesToRecord - framesLeftToRecord], framesToRead);
+    if (err != paNoError) throw std::runtime_error("Failed to read stream");
 
-  err = Pa_StopStream(stream);
-  if (err != paNoError) throw std::runtime_error("Failed to stop stream");
+    framesLeftToRecord -= framesToRead;
+
+
+  }
 
   err = Pa_CloseStream(stream);
   if (err != paNoError) throw std::runtime_error("Failed to close stream");
 
   Pa_Terminate();
 
-  // After recording:
-  SaveAudioToFile(audioBuffer, "recorded_audio.wav");
-  return audioBuffer;
+
+  // Convert float buffer to 16-bit PCM
+  std::transform(floatBuffer.begin(), floatBuffer.end(), pcmBuffer.begin(), FloatToPCM16);
+
+  SaveAudioToFile(pcmBuffer, "recorded_audio.wav");
+  return pcmBuffer;
 }
 
 int main() {
