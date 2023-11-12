@@ -1,10 +1,31 @@
-[sm@localhost production]$ cmake .
-CMake Error at /home/sm/Downloads/cmake-3.27.7-linux-x86_64/share/cmake-3.27/Modules/FindPackageHandleStandardArgs.cmake:230 (message):
-  Could NOT find OpenSSL, try to set the path to OpenSSL root folder in the
-  system variable OPENSSL_ROOT_DIR (missing: OPENSSL_CRYPTO_LIBRARY
-  OPENSSL_INCLUDE_DIR)
-Call Stack (most recent call first):
-  /home/sm/Downloads/cmake-3.27.7-linux-x86_64/share/cmake-3.27/Modules/FindPackageHandleStandardArgs.cmake:600 (_FPHSA_FAILURE_MESSAGE)
-  /home/sm/Downloads/cmake-3.27.7-linux-x86_64/share/cmake-3.27/Modules/FindOpenSSL.cmake:668 (find_package_handle_standard_args)
-  CMakeLists.txt:19 (find_package)
+[sm@localhost production]$ g++ -o Polly Polly.cpp Display.cpp LLMProcessing.cpp TextToSpeech.cpp VoiceCustomization.cpp STT.cpp -std=c++11 -lcurl -I.
+/tmp/cc3GNyO4.o: In function `STT::ListAudioDevices()':
+STT.cpp:(.text+0x1c8): undefined reference to `Pa_GetDeviceCount'
+STT.cpp:(.text+0x221): undefined reference to `Pa_GetDeviceInfo'
+/tmp/cc3GNyO4.o: In function `STT::RecordAudio(int)':
+STT.cpp:(.text+0x2a9): undefined reference to `Pa_Initialize'
+STT.cpp:(.text+0x337): undefined reference to `Pa_GetDefaultInputDevice'
+STT.cpp:(.text+0x35f): undefined reference to `Pa_GetDeviceInfo'
+STT.cpp:(.text+0x3bf): undefined reference to `Pa_OpenStream'
+STT.cpp:(.text+0x43e): undefined reference to `Pa_StartStream'
+STT.cpp:(.text+0x58c): undefined reference to `Pa_ReadStream'
+STT.cpp:(.text+0x628): undefined reference to `Pa_CloseStream'
+STT.cpp:(.text+0x69d): undefined reference to `Pa_Terminate'
+/tmp/cc3GNyO4.o: In function `STT::run()':
+STT.cpp:(.text+0x8f7): undefined reference to `Pa_Initialize'
+STT.cpp:(.text+0x914): undefined reference to `Pa_GetErrorText'
+STT.cpp:(.text+0x984): undefined reference to `SpeechRecognizer::SpeechRecognizer(std::string const&)'
+STT.cpp:(.text+0xa07): undefined reference to `SpeechRecognizer::performSpeechRecognition(std::vector<short, std::allocator<short> >)'
+STT.cpp:(.text+0xa2d): undefined reference to `SpeechRecognizer::getTranscribedText(std::string const&)'
+STT.cpp:(.text+0xad4): undefined reference to `Pa_Terminate'
+collect2: error: ld returned 1 exit status
+[sm@localhost production]$ 
+
+
+g++ -o Polly Polly.cpp Display.cpp LLMProcessing.cpp TextToSpeech.cpp VoiceCustomization.cpp STT.cpp SpeechRecognizer.cpp -std=c++11 -lcurl -lportaudio -I.
+
+
+
+g++ -o Polly Polly.cpp Display.cpp LLMProcessing.cpp TextToSpeech.cpp VoiceCustomization.cpp STT.cpp SpeechRecognizer.cpp -std=c++11 -lcurl -lportaudio -lcrypto -I.
+
 

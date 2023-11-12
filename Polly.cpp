@@ -12,7 +12,7 @@ void Polly::run() {
     while (true) {
         std::string textInput;
         std::cout << "Polly is listening: ";
-        //for testing purposes..replace with STT function to get text
+        //for testing purposes.replace with STT function to get text
         std::getline(std::cin, textInput);
 
         // Convert textInput to lowercase lambda f'n applies tolower to each char of textInput
@@ -31,9 +31,20 @@ void Polly::run() {
         }
         else if (textInput == "test") {
             tts.speak("Say something now::");
-            stt.run();
-            break;  // Exit the loop, thus ending the program
+            std::string transcribedText = stt.run();  // Use the STT instance to get the transcribed text
+            if (!transcribedText.empty()) {
+                std::string response = llmProcessor.generateResponse(transcribedText);
+                std::string emotion = llmProcessor.determineEmotion(response);
+
+                std::cout << "Transcribed Text: " << transcribedText << std::endl;
+                std::cout << "Response: " << response << std::endl;
+                std::cout << "Emotion: " << emotion << std::endl;
+
+                display.pollyFeels(emotion);
+                tts.speak(response);
+            }
         }
+
         else {
             std::string response = llmProcessor.generateResponse(textInput);
             std::string emotion = llmProcessor.determineEmotion(response);

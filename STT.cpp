@@ -130,33 +130,39 @@ std::vector<int16_t> STT::RecordAudio(int recordTimeSecs) {
   return pcmBuffer;
 }
 
-void STT::run() {
-  PaError err = Pa_Initialize();
-  curl_global_init(CURL_GLOBAL_ALL);
-  if (err != paNoError) {
-    std::cerr << "PortAudio initialization failed: " << Pa_GetErrorText(err) << std::endl;
-    return; // used to be return 1
-  }
+std::string STT::run() {
+    std::string transcribedText;
 
-  try {
-    SpeechRecognizer recognizer(apikey);
-    ListAudioDevices();
-    std::cout << "Press ENTER to start recording..." << std::endl;
-    std::cin.get();
-
-    auto audioBuffer = RecordAudio(kRecordTimeSecs);
-    auto response = recognizer.performSpeechRecognition(audioBuffer);
-    try {
-      auto transcribedText = recognizer.getTranscribedText(response);
-      std::cout << "Transcribed Text: " << transcribedText << std::endl;
-    } catch (const std::exception &e) {
-      std::cerr << "Error processing transcription: " << e.what() << std::endl;
+    PaError err = Pa_Initialize();
+    curl_global_init(CURL_GLOBAL_ALL);
+    if (err != paNoError) {
+        std::cerr << "PortAudio initialization failed: " << Pa_GetErrorText(err) << std::endl;
+        return "Error: PortAudio initialization failed";
     }
-    std::cout << "Full API Response: " << response << std::endl;
-  } catch (const std::exception &e) {
-    std::cerr << "An error occurred: " << e.what() << std::endl;
-  }
 
-  Pa_Terminate();
-  curl_global_cleanup();
+    try {
+        SpeechRecognizer recognizer(apikey);
+        ListAudioDevices();
+        std::cout << "Press ENTER to start recording..." << std::endl;
+        std::cin.get();
+
+        auto audioBuffer = RecordAudio(kRecordTimeSecs);
+        auto response = recognizer.performSpeechRecognition(audioBuffer);
+        try {
+            transcribedText = recognizer.getTranscribedText(response);
+            std::cout << "Transcribed Text: " << transcribedText << std::endl;
+        } catch (const std::exception &e) {
+            std::cerr << "Error processing transcription: " << e.what() << std::endl;
+            transcribedText = "Error processing transcription";
+        }
+        std::cout << "Full API Response: " << response << std::endl;
+    } catch (const std::exception &e) {
+        std::cerr << "An error occurred: " << e.what() << std::endl;
+        transcribedText = "Error: An error occurred during speech recognition";
+    }
+    Pa_Terminate();
+    curl_global_cleanup();
+
+    return transcribedText;
 }
+
