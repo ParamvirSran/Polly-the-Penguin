@@ -3,7 +3,7 @@
 #include <string>
 #include <algorithm>
 
-Polly::Polly() : voice(&tts) {
+Polly::Polly() : voice(&tts){
     tts.setVoiceCustomization(&voice);
 }
 void Polly::run() {
@@ -27,6 +27,11 @@ void Polly::run() {
         }
         else if (textInput == "shutdown") {
             tts.speak("Shutting down. Goodbye!");
+            break;  // Exit the loop, thus ending the program
+        }
+        else if (textInput == "test") {
+            tts.speak("Say something now::");
+            stt.run();
             break;  // Exit the loop, thus ending the program
         }
         else {

@@ -1,21 +1,24 @@
-/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -S /Users/parm/Desktop/Programming/C++/group29 -B /Users/parm/Desktop/Programming/C++/group29
-CMake Warning at CMakeLists.txt:22 (find_package):
-  By not providing "FindPortAudio.cmake" in CMAKE_MODULE_PATH this project
-  has asked CMake to find a package configuration file provided by
-  "PortAudio", but CMake did not find one.
+"C:\Program Files\JetBrains\CLion 2023.2.2\bin\cmake\win\x64\bin\cmake.exe" -S "C:\Users\16474\Documents\uni pt2\CS 3307 OOP\mainProduction" -B "C:\Users\16474\Documents\uni pt2\CS 3307 OOP\mainProduction"
+-- Building for: Visual Studio 17 2022
+-- Selecting Windows SDK version 10.0.22000.0 to target Windows 10.0.22621.
+-- The C compiler identification is MSVC 19.36.32537.0
+-- The CXX compiler identification is MSVC 19.36.32537.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.36.32532/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.36.32532/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+CMake Error at C:/Program Files/JetBrains/CLion 2023.2.2/bin/cmake/win/x64/share/cmake-3.26/Modules/FindPackageHandleStandardArgs.cmake:230 (message):
+  Could NOT find CURL (missing: CURL_INCLUDE_DIR)
+Call Stack (most recent call first):
+  C:/Program Files/JetBrains/CLion 2023.2.2/bin/cmake/win/x64/share/cmake-3.26/Modules/FindPackageHandleStandardArgs.cmake:600 (_FPHSA_FAILURE_MESSAGE)
+  C:/Program Files/JetBrains/CLion 2023.2.2/bin/cmake/win/x64/share/cmake-3.26/Modules/FindCURL.cmake:182 (find_package_handle_standard_args)
+  CMakeLists.txt:22 (find_package)
 
-  Could not find a package configuration file provided by "PortAudio" with
-  any of the following names:
 
-    PortAudioConfig.cmake
-    portaudio-config.cmake
-
-  Add the installation prefix of "PortAudio" to CMAKE_PREFIX_PATH or set
-  "PortAudio_DIR" to a directory containing one of the above files.  If
-  "PortAudio" provides a separate development package or SDK, be sure it has
-  been installed.
-
-
--- Configuring done (0.1s)
--- Generating done (0.0s)
--- Build files have been written to: /Users/parm/Desktop/Programming/C++/group29
+-- Configuring incomplete, errors occurred!

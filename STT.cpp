@@ -6,8 +6,12 @@
 #include "portaudio.h"
 #include <curl/curl.h>
 #include <limits>
+#include "nlohmann/json.hpp"
 
-
+const int STT::kSampleRate = 44100;
+const int STT::kFramesPerBuffer = 256;
+const int STT::kNumChannels = 1;
+const int STT::kRecordTimeSecs = 5;
 const std::string apikey = "AIzaSyC7nOfOCovoNDIT8bzIdFh_X9n0lSWdnt4";
 
 // Define the WAV file header structure
@@ -61,7 +65,7 @@ void SaveAudioToFile(const std
 }
 
 
-void ListAudioDevices() {
+void STT::ListAudioDevices() {
   int numDevices = Pa_GetDeviceCount();
   if (numDevices < 1) {
     std::cerr << "No audio devices found!" << std::endl;
@@ -76,7 +80,7 @@ void ListAudioDevices() {
 
 
 // Function to record audio from default input device for a specified duration
-std::vector<int16_t> RecordAudio(int recordTimeSecs) {
+std::vector<int16_t> STT::RecordAudio(int recordTimeSecs) {
   // Initialize PortAudio
   PaError err = Pa_Initialize();
 
@@ -85,26 +89,26 @@ std::vector<int16_t> RecordAudio(int recordTimeSecs) {
   PaStreamParameters inputParameters;
   memset(&inputParameters, 0, sizeof(inputParameters)); // Use `memset` to clear the structure
   inputParameters.device = Pa_GetDefaultInputDevice();
-  inputParameters.channelCount = kNumChannels;
+  inputParameters.channelCount = STT::kNumChannels;
   inputParameters.sampleFormat = paFloat32;
   inputParameters.suggestedLatency = Pa_GetDeviceInfo(inputParameters.device)->defaultLowInputLatency;
   inputParameters.hostApiSpecificStreamInfo = nullptr;
 
   PaStream *stream;
-  err = Pa_OpenStream(&stream, &inputParameters, nullptr, kSampleRate, kFramesPerBuffer, paClipOff, nullptr, nullptr);
+  err = Pa_OpenStream(&stream, &inputParameters, nullptr, STT::kSampleRate, STT::kFramesPerBuffer, paClipOff, nullptr, nullptr);
   if (err != paNoError) throw std::runtime_error("Failed to open stream");
 
   err = Pa_StartStream(stream);
   if (err != paNoError) throw std::runtime_error("Failed to start stream");
 
-  int totalFramesToRecord = kSampleRate * recordTimeSecs;
+  int totalFramesToRecord = STT::kSampleRate * recordTimeSecs;
   std::vector<float> floatBuffer(totalFramesToRecord);
   std::vector<int16_t> pcmBuffer(totalFramesToRecord);
 
   // Record loop
   int framesLeftToRecord = totalFramesToRecord;
   while (framesLeftToRecord > 0) {
-    int framesToRead = std::min(kFramesPerBuffer, framesLeftToRecord);
+    int framesToRead = std::min(STT::kFramesPerBuffer, framesLeftToRecord);
     err = Pa_ReadStream(stream, &floatBuffer[totalFramesToRecord - framesLeftToRecord], framesToRead);
     if (err != paNoError) throw std::runtime_error("Failed to read stream");
 
@@ -126,12 +130,12 @@ std::vector<int16_t> RecordAudio(int recordTimeSecs) {
   return pcmBuffer;
 }
 
-int main() {
+void STT::run() {
   PaError err = Pa_Initialize();
   curl_global_init(CURL_GLOBAL_ALL);
   if (err != paNoError) {
     std::cerr << "PortAudio initialization failed: " << Pa_GetErrorText(err) << std::endl;
-    return 1;
+    return; // used to be return 1
   }
 
   try {
@@ -155,5 +159,4 @@ int main() {
 
   Pa_Terminate();
   curl_global_cleanup();
-  return 0;
 }

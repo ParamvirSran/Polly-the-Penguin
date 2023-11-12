@@ -6,16 +6,21 @@
 
 void Display::pollyFeels(const std::string& emotion) {
     // Determine which image to display based on the emotion
+    // LLMProcessing returns one of the following emotions: anger, fear, joy, love, sadness, and surprise
     std::string imageFile;
 
-    if (emotion == "sad") {
+    if (emotion == "sadness") {
         imageFile = "graphics/sad.jpg";
-    } else if (emotion == "angry") {
+    } else if (emotion == "anger") {
         imageFile = "graphics/angry.jpg";
     } else if (emotion == "love") {
-        imageFile = "graphics/happy.jpg";
+        imageFile = "graphics/love.jpg";
     } else if (emotion == "surprise") {
+        imageFile = "graphics/surprise.jpg";
+    } else if (emotion == "joy") {
         imageFile = "graphics/happy.jpg";
+    } else if (emotion == "fear") {
+        imageFile = "graphics/fear.jpg";
     } else {
         // Default to base image for unknown emotions
         imageFile = "graphics/base.jpg";
