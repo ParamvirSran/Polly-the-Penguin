@@ -84,7 +84,7 @@ To change voice, type "change voice"
 To exit, type "shut down"
 
 To try out the Speech-To-Text functionality (STT.cpp), type "test", and begin speaking (no need to enter)
-after a set amount of time, you will recieve back what you said in JSON. 
+after a set amount of time, you will recieve back what you said in JSON, and after a while, Polly will respond.
 	****Please note that this is still in development and may show a bunch of errors/break the program****
 
 
