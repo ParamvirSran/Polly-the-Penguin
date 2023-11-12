@@ -48,6 +48,10 @@ Then install the following:
 * transformers
 * curl
 * espeak
+* openssl-devel
+* portaudio-devel
+
+Please ensure all the above packages are added to PATH before proceeding.
 
        _____              _____ 
 _________  /______ _________  /_
@@ -57,7 +61,7 @@ _(__  )/ /_ / /_/ /_  /   / /_
 Open two terminals, turn your volume on, then enter these commands:
 
 1. python3 llm_service.py (opens server..MUST KEEP IT RUNNING)
-2. (in new terminal) g++ -o Polly polly.cpp Display.cpp LLMProcessing.cpp TextToSpeech.cpp VoiceCustomization.cpp -std=c++11 -lcurl
+2. (in new terminal) g++ -o Polly Polly.cpp Display.cpp LLMProcessing.cpp TextToSpeech.cpp VoiceCustomization.cpp STT.cpp SpeechRecognizer.cpp -std=c++11 -lcurl -lportaudio -lcrypto -lssl -I.
 3. (in the terminal you ran the g++ command) ./Polly
 
 
@@ -78,6 +82,10 @@ will be able to continue talking.
 To change voice, type "change voice"
 
 To exit, type "shut down"
+
+To try out the Speech-To-Text functionality (STT.cpp), type "test", and begin speaking (no need to enter)
+after a set amount of time, you will recieve back what you said in JSON. 
+	****Please note that this is still in development and may show a bunch of errors/break the program****
 
 
 
