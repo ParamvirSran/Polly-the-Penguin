@@ -20,6 +20,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 @app.route('/generate', methods=['POST'])
 def generate_text():
+    print("made it here")
     try:
         content = request.json
         #logging.debug(f"Received content: {content}")
@@ -47,6 +48,7 @@ def generate_text():
 
 @app.route('/generate_emotion', methods=['POST'])
 def generate_emotion():
+    print("made it here2")
     try:
         content = request.json
         input_text = content['text']

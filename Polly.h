@@ -19,6 +19,8 @@ private:
 public:
     Polly(); // Constructor declaration
     void run();
+    std::string getNextMessageFromWebSocket();
+    void narrate(const std::string& response);
 };
 
 #endif // POLLY_H

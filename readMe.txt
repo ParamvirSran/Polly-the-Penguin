@@ -50,6 +50,7 @@ Then install the following:
 * espeak
 * openssl-devel
 * portaudio-devel
+* lcurl
 
 Please ensure all the above packages are added to PATH before proceeding.
 
@@ -61,8 +62,9 @@ _(__  )/ /_ / /_/ /_  /   / /_
 Open two terminals, turn your volume on, then enter these commands:
 
 1. python3 llm_service.py (opens server..MUST KEEP IT RUNNING)
-2. (in new terminal) g++ -o Polly Polly.cpp Display.cpp LLMProcessing.cpp TextToSpeech.cpp VoiceCustomization.cpp STT.cpp SpeechRecognizer.cpp -std=c++11 -lcurl -lportaudio -lcrypto -lssl -I.
-3. (in the terminal you ran the g++ command) ./Polly
+2. (in new terminal) g++ -o Polly Polly.cpp Display.cpp LLMProcessing.cpp TextToSpeech.cpp VoiceCustomization.cpp STT.cpp SpeechRecognizer.cpp main.cpp -std=c++11 -lcurl -lportaudio -lcrypto -lssl -lpthread -lboost_system -I. -I ./crow/include
+3. (in the terminal you ran the g++ command) ./Polly (opens crow server .. ALSO MUST KEEP IT RUNNING)
+4. change directory into webui folder and run the command: npx vite (keep this one running too)
 
 
 _____            __________                
@@ -71,21 +73,15 @@ _  __/  _ \_  ___/  __/_  /__  __ \_  __ `/
 / /_ /  __/(__  )/ /_ _  / _  / / /  /_/ / 
 \__/ \___//____/ \__/ /_/  /_/ /_/_\__, /  
                                   /____/   
-When you see "Polly is listening", you can directly type in your prompts.
-For the MVP, the LLM is running using CPU inference, therefore it
-takes a little bit of time to generate responses. Please be patient,
-and wait for Polly to speak its response and emotion.
+you type your message into the box and press "SEND" ... only press once or it will loop
 
-Once Polly is done talking, Polly is listening will be prompted again, and you
-will be able to continue talking.
 
-To change voice, type "change voice"
 
-To exit, type "shut down"
+CURRENT ISSUES:
 
-To try out the Speech-To-Text functionality (STT.cpp), type "test", and begin speaking (no need to enter)
-after a set amount of time, you will recieve back what you said in JSON, and after a while, Polly will respond.
-	****Please note that this is still in development and may show a bunch of errors/break the program****
+-STT is not properly integrated..ideally there should be a button in the webUI that you will click and then it will start listening
+-no animation for "love", maybe add heart emojis or <3 in the text section (or add another text section) and implement how the "THINKING" message is implemented
+-LLM finetuning (play around with the paramaters in llm_service.py)
 
 
 

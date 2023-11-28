@@ -1,66 +1,70 @@
+// SAAD MAHMOOD
+
 #include "Polly.h"
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <crow.h>
+#include <mutex>
+#include <queue>
 
-Polly::Polly() : voice(&tts){
+// Declare these as extern in Polly.cpp to access them from main.cpp
+extern std::mutex queueMutex;
+extern std::queue<std::string> messageQueue;
+extern crow::websocket::connection* current_ws_conn;
+
+Polly::Polly() : voice(&tts) {
     tts.setVoiceCustomization(&voice);
 }
+
 void Polly::run() {
-    tts.speak("STARTING UP"); //startup message
+    tts.speak("STARTING UP"); // Startup message
     tts.speak("Welcome to Polly. How can I assist you today?");
+
     while (true) {
-        std::string textInput;
-        std::cout << "Polly is listening: ";
-        //for testing purposes.replace with STT function to get text
-        std::getline(std::cin, textInput);
+        std::string textInput = getNextMessageFromWebSocket();
+        if (textInput.empty()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            continue;
+        }
 
-        // Convert textInput to lowercase lambda f'n applies tolower to each char of textInput
+        display.pollyFeels("thinking"); // Polly starts to think
         std::transform(textInput.begin(), textInput.end(), textInput.begin(),
-                       [](unsigned char c){ return std::tolower(c); });
+                       [](unsigned char c) { return std::tolower(c); });
 
-        //str compare returns 0 if equal
         if (textInput == "change voice") {
-            std::cout << "Ok, I'll change my voice";
             voice.changeVoice();
             tts.speak("Voice has been changed.");
-        }
-        else if (textInput == "shutdown") {
+        } else if (textInput == "shutdown") {
             tts.speak("Shutting down. Goodbye!");
-            break;  // Exit the loop, thus ending the program
-        }
-        else if (textInput == "test") {
-            tts.speak("Say something now::");
-            std::string transcribedText = stt.run();  // Use the STT instance to get the transcribed text
-            if (!transcribedText.empty()) {
-                std::string response = llmProcessor.generateResponse(transcribedText);
-                std::string emotion = llmProcessor.determineEmotion(response);
-
-                std::cout << "Transcribed Text: " << transcribedText << std::endl;
-                std::cout << "Response: " << response << std::endl;
-                std::cout << "Emotion: " << emotion << std::endl;
-
-                display.pollyFeels(emotion);
-                tts.speak(response);
-            }
-        }
-
-        else {
+            break;
+        } else {
             std::string response = llmProcessor.generateResponse(textInput);
             std::string emotion = llmProcessor.determineEmotion(response);
 
-            std::cout << "Response: " << response << std::endl;
-            std::cout << "Emotion: " << emotion << std::endl;
+            if (current_ws_conn) {
+                crow::json::wvalue msg;
+                msg["response"] = response;
+                msg["emotion"] = emotion;
+                current_ws_conn->send_text(crow::json::dump(msg));
+            }
 
             display.pollyFeels(emotion);
             tts.speak(response);
         }
     }
 }
-int main() {
-    // Create an instance of the Display class
-    //Display display;
-    Polly polly;
-    polly.run();
-    return 0;
+
+std::string Polly::getNextMessageFromWebSocket() {
+    std::lock_guard<std::mutex> lock(queueMutex);
+    if (!messageQueue.empty()) {
+        std::string message = messageQueue.front();
+        messageQueue.pop();
+        std::cout << "Processing msg: " << message << std::endl; //debugging
+        return message;
+    }
+    return ""; // Return an empty string if no message is available
+}
+void Polly::narrate(const std::string& response) {
+    tts.speak(response);
 }
