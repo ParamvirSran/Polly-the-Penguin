@@ -53,6 +53,9 @@ Then install the following:
 * portaudio-devel ( version 19-16.el7 )
 * lcurl ( version 7.29.0-59.el7_9.1 )
 * crow ( version v0.1-29-g2b43d3c )
+* node ( version v16.20.2 )
+* npm ( version 8.19.4 )
+* npx ( version 8.19.4 )
 
 Please ensure all the above packages are added to PATH before proceeding.
 
