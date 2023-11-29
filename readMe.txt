@@ -47,6 +47,7 @@ Then install the following:
 * pytorch ( version 1.10.1+cu102 )
 * transformers ( version 4.18.0 )
 * curl ( version 7.29.0 )
+* boost ( version 1.53 )
 * espeak ( version 1.47.11 )
 * openssl-devel ( version 1:1.0.2k-26.el7_9 )
 * portaudio-devel ( version 19-16.el7 )
