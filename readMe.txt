@@ -37,7 +37,7 @@ _(__  )/  __/ /_ / /_/ /__  /_/ /
 /____/ \___/\__/ \__,_/ _  .___/ 
                         /_/
 First make sure you are on 64bit Fedora or Debian/Ubuntu based Linux distro
-    (works best on Ubuntu or CentOS)
+    (works best on CentOS 7 with the following versions)
 
 Then install the following:
 
