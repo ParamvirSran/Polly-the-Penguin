@@ -41,16 +41,17 @@ First make sure you are on 64bit Fedora or Debian/Ubuntu based Linux distro
 
 Then install the following:
 
-* python3.10
-* g++
-* flask
-* pytorch
-* transformers
-* curl
-* espeak
-* openssl-devel
-* portaudio-devel
-* lcurl
+* python ( version 3.6.8 )
+* g++ ( version 4.8.5 )
+* flask ( version 2.0.3 )
+* pytorch ( version 1.10.1+cu102 )
+* transformers ( version 4.18.0 )
+* curl ( version 7.29.0 )
+* espeak ( version 1.47.11 )
+* openssl-devel ( version 1:1.0.2k-26.el7_9 )
+* portaudio-devel ( version 19-16.el7 )
+* lcurl ( version 7.29.0-59.el7_9.1 )
+* crow ( version v0.1-29-g2b43d3c )
 
 Please ensure all the above packages are added to PATH before proceeding.
 
