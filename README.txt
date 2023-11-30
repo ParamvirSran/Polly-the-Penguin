@@ -72,6 +72,10 @@ Open two terminals, turn your volume on, then enter these commands:
 4. change directory into webui folder and run the command: npx vite (keep this one running too)
 
 
+to run use the following command from the root directory:
+
+./polly.sh
+
 _____            __________
 __  /______________  /___(_)_____________ _
 _  __/  _ \_  ___/  __/_  /__  __ \_  __ `/
