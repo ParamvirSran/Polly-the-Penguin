@@ -1,13 +1,12 @@
 // SAAD MAHMOOD
 
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
-import io from 'socket.io-client'; // Import socket.io-client
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader';
+import {RGBELoader} from 'three/examples/jsm/loaders/RGBELoader.js';
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false });
+const renderer = new THREE.WebGLRenderer({antialias: true, alpha: false});
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 
@@ -18,24 +17,24 @@ pmremGenerator.compileEquirectangularShader();
 let envMap; // Define this outside to be accessible in the model load function
 
 new RGBELoader()
-  .setDataType(THREE.FloatType) // Set the data type to FloatType for HDR texture
-  .load('./graphics/polly/bg_rs.hdr', function (hdrTexture) {
-    hdrTexture.mapping = THREE.EquirectangularReflectionMapping;
-    envMap = pmremGenerator.fromEquirectangular(hdrTexture).texture; // Create the envMap
-    scene.environment = envMap; // Set it as the environment of the scene
-    pmremGenerator.dispose();
-    hdrTexture.dispose();
-    updateMaterials(); // Update materials with the new envMap
-  });
+    .setDataType(THREE.FloatType) // Set the data type to FloatType for HDR texture
+    .load('./graphics/polly/bg_rs.hdr', function (hdrTexture) {
+        hdrTexture.mapping = THREE.EquirectangularReflectionMapping;
+        envMap = pmremGenerator.fromEquirectangular(hdrTexture).texture; // Create the envMap
+        scene.environment = envMap; // Set it as the environment of the scene
+        pmremGenerator.dispose();
+        hdrTexture.dispose();
+        updateMaterials(); // Update materials with the new envMap
+    });
 
 // Function to update materials with the environment map
 function updateMaterials() {
-  scene.traverse((object) => {
-    if (object.material && 'envMap' in object.material) {
-      object.material.envMap = envMap;
-      object.material.needsUpdate = true;
-    }
-  });
+    scene.traverse((object) => {
+        if (object.material && 'envMap' in object.material) {
+            object.material.envMap = envMap;
+            object.material.needsUpdate = true;
+        }
+    });
 }
 
 const light = new THREE.AmbientLight(0xffffff, 5);
@@ -126,34 +125,34 @@ loader.load(
 
 const socket = new WebSocket('ws://localhost:8080/ws');
 
-socket.onopen = function(e) {
-  console.log("Connection established!");
+socket.onopen = function (e) {
+    console.log("Connection established!");
 };
 
-socket.onmessage = function(event) {
-  const data = JSON.parse(event.data);
-  if (data.action && data.action == "thinking") {
-    changeAnimationClip("thinking");
-    document.getElementById('output').textContent = data.thinkingText;
-  } else if (data.response) {
-    document.getElementById('output').textContent = data.response;
-    if (data.emotion) {
-      changeAnimationClip(data.emotion);
+socket.onmessage = function (event) {
+    const data = JSON.parse(event.data);
+    if (data.action && data.action == "thinking") {
+        changeAnimationClip("thinking");
+        document.getElementById('output').textContent = data.thinkingText;
+    } else if (data.response) {
+        document.getElementById('output').textContent = data.response;
+        if (data.emotion) {
+            changeAnimationClip(data.emotion);
+        }
     }
-  }
 };
 
-socket.onclose = function(event) {
-  if (event.wasClean) {
-    console.log(`Connection closed cleanly, code=${event.code}, reason=${event.reason}`);
-  } else {
-    // e.g. server process killed or network down
-    console.log('Connection died');
-  }
+socket.onclose = function (event) {
+    if (event.wasClean) {
+        console.log(`Connection closed cleanly, code=${event.code}, reason=${event.reason}`);
+    } else {
+        // e.g. server process killed or network down
+        console.log('Connection died');
+    }
 };
 
-socket.onerror = function(error) {
-  console.log(`[error] ${error.message}`);
+socket.onerror = function (error) {
+    console.log(`[error] ${error.message}`);
 };
 
 camera.position.set(0, 5, 10);
@@ -162,7 +161,7 @@ camera.lookAt(scene.position);
 function animate() {
     requestAnimationFrame(animate);
     const delta = clock.getDelta();
-    
+
     if (mixer) {
         mixer.update(delta);
     }

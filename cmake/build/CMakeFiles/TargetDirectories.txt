@@ -1,0 +1,3 @@
+/home/parallels/Desktop/polly/cmake/build/CMakeFiles/Polly.dir
+/home/parallels/Desktop/polly/cmake/build/CMakeFiles/edit_cache.dir
+/home/parallels/Desktop/polly/cmake/build/CMakeFiles/rebuild_cache.dir
