@@ -2,7 +2,7 @@
 <project version="4">
   <component name="CMakeSharedSettings">
     <configurations>
-      <configuration PROFILE_NAME="Default" ENABLED="true" GENERATION_DIR="$PROJECT_DIR$/build" GENERATION_OPTIONS="$CMakeProjectDir$" NO_GENERATOR="true" />
+      <configuration PROFILE_NAME="Release" ENABLED="true" GENERATION_DIR="build" CONFIG_NAME="Release" NO_GENERATOR="true" />
       <configuration PROFILE_NAME="Default-event-trace" ENABLED="false" GENERATION_OPTIONS="$CMakeProjectDir$ --profiling-format=google-trace --profiling-output=CMakeFiles/clion-event-trace.json" NO_GENERATOR="true" />
     </configurations>
   </component>
