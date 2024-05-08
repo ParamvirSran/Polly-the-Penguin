@@ -1,0 +1,22 @@
+/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Release -S /Users/parm/Desktop/Programming/C++/Polly -B /Users/parm/Desktop/Programming/C++/Polly/build
+-- The C compiler identification is AppleClang 15.0.0.15000040
+-- The CXX compiler identification is AppleClang 15.0.0.15000040
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /Library/Developer/CommandLineTools/usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /Library/Developer/CommandLineTools/usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found Boost: /Users/parm/anaconda3/lib/cmake/Boost-1.73.0/BoostConfig.cmake (found version "1.73.0") found components: system 
+-- Found CURL: /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk/usr/lib/libcurl.tbd (found version "8.1.2")  
+-- Found OpenSSL: /opt/homebrew/Cellar/openssl@3/3.1.4/lib/libcrypto.dylib (found version "3.1.4")  
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Configuring done (1.5s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/parm/Desktop/Programming/C++/Polly/build
